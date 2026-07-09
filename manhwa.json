@@ -1,0 +1,679 @@
+[
+  {
+    "id": "solo+leveling",
+    "rank": 1,
+    "title": "Solo Leveling",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Fantasy"
+    ],
+    "tags": [
+      "Zero to Hero"
+    ],
+    "score": 11,
+    "summary": "The world's weakest hunter gains a power that lets him level up without limit.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Solo+Leveling",
+    "read_url": ""
+  },
+  {
+    "id": "player",
+    "rank": 2,
+    "title": "Player",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Fantasy"
+    ],
+    "tags": [
+      "Zero to Hero"
+    ],
+    "score": 11,
+    "summary": "A hunter awakens a unique 'Player' system that turns life into a game he can grind.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Player",
+    "read_url": ""
+  },
+  {
+    "id": "villains+are+destined+to+die",
+    "rank": 3,
+    "title": "Villains Are Destined to Die",
+    "type": "Manhwa",
+    "genres": [
+      "Romance",
+      "Drama",
+      "Fantasy"
+    ],
+    "tags": [
+      "Romance / Drama"
+    ],
+    "score": 11,
+    "summary": "Trapped inside a brutal dating sim as its doomed villainess, she must survive every route.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Villains+Are+Destined+to",
+    "read_url": ""
+  },
+  {
+    "id": "disciple+of+the+holy+sword",
+    "rank": 4,
+    "title": "Disciple of the Holy Sword",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Fantasy"
+    ],
+    "tags": [
+      "Zero to Hero"
+    ],
+    "score": 10.5,
+    "summary": "A talentless disciple inherits the will of a legendary holy sword and rises fast.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Disciple+of+the+Holy+Swo",
+    "read_url": ""
+  },
+  {
+    "id": "tomb+raider+king",
+    "rank": 5,
+    "title": "Tomb Raider King",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Adventure",
+      "Fantasy"
+    ],
+    "tags": [
+      "Action / Adventure"
+    ],
+    "score": 10,
+    "summary": "A relic-hunter regresses in time to claim the world's treasures before anyone else.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Tomb+Raider+King",
+    "read_url": ""
+  },
+  {
+    "id": "leviathan",
+    "rank": 6,
+    "title": "Leviathan",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Adventure",
+      "Horror"
+    ],
+    "tags": [
+      "Action / Adventure"
+    ],
+    "score": 10,
+    "summary": "Giant monsters rise from a drowned world and a lone survivor learns to fight back.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Leviathan",
+    "read_url": ""
+  },
+  {
+    "id": "viral+hit",
+    "rank": 7,
+    "title": "Viral Hit",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Drama"
+    ],
+    "tags": [
+      "Action / Adventure"
+    ],
+    "score": 10,
+    "summary": "A bullied student turns viral street fights into fame, money, and hard lessons.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Viral+Hit",
+    "read_url": ""
+  },
+  {
+    "id": "devil+returns+to+school+days",
+    "rank": 8,
+    "title": "Devil Returns To School Days",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Fantasy"
+    ],
+    "tags": [
+      "Action / Adventure"
+    ],
+    "score": 10,
+    "summary": "A feared warrior is sent back to his school years to rewrite a tragic future.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Devil+Returns+To+School+",
+    "read_url": ""
+  },
+  {
+    "id": "star-embracing+swordmaster",
+    "rank": 9,
+    "title": "Star-Embracing Swordmaster",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Fantasy"
+    ],
+    "tags": [
+      "Action / Adventure"
+    ],
+    "score": 10,
+    "summary": "A fallen swordsman chases mastery under a sky full of borrowed starlight.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Star-Embracing+Swordmast",
+    "read_url": ""
+  },
+  {
+    "id": "omniscient+reader%27s+viewpoint",
+    "rank": 10,
+    "title": "Omniscient Reader's Viewpoint",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Fantasy",
+      "Adventure"
+    ],
+    "tags": [
+      "Regression & Return"
+    ],
+    "score": 10,
+    "summary": "The only reader who finished a web novel must now survive it as reality.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Omniscient+Reader%27s+View",
+    "read_url": ""
+  },
+  {
+    "id": "the+regressed+mercenary+has+a+plan",
+    "rank": 11,
+    "title": "The Regressed Mercenary Has a Plan",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Fantasy"
+    ],
+    "tags": [
+      "Regression & Return"
+    ],
+    "score": 10,
+    "summary": "A veteran mercenary regresses with full knowledge of the war to come and a plan.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=The+Regressed+Mercenary+",
+    "read_url": ""
+  },
+  {
+    "id": "a+returner%27s+magic+should+be+special",
+    "rank": 12,
+    "title": "A Returner's Magic Should Be Special",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Fantasy"
+    ],
+    "tags": [
+      "Regression & Return"
+    ],
+    "score": 10,
+    "summary": "Sent back before the apocalypse, a mage rebuilds his power to save his friends.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=A+Returner%27s+Magic+Shoul",
+    "read_url": ""
+  },
+  {
+    "id": "eternally+regressing+knight",
+    "rank": 13,
+    "title": "Eternally Regressing Knight",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Fantasy"
+    ],
+    "tags": [
+      "Regression & Return"
+    ],
+    "score": 10,
+    "summary": "A knight who cannot truly die keeps regressing through endless deadly loops.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Eternally+Regressing+Kni",
+    "read_url": ""
+  },
+  {
+    "id": "return+of+the+blossoming+blade",
+    "rank": 14,
+    "title": "Return of the Blossoming Blade",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Martial Arts"
+    ],
+    "tags": [
+      "Murim & Martial Arts"
+    ],
+    "score": 10,
+    "summary": "A retired martial legend returns to his youth to walk the sword path once more.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Return+of+the+Blossoming",
+    "read_url": ""
+  },
+  {
+    "id": "absolute+regression",
+    "rank": 15,
+    "title": "Absolute Regression",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Fantasy"
+    ],
+    "tags": [
+      "Murim & Martial Arts"
+    ],
+    "score": 10,
+    "summary": "Given one more chance through regression, he refuses to repeat his ruin.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Absolute+Regression",
+    "read_url": ""
+  },
+  {
+    "id": "myst%2C+might%2C+mayhem",
+    "rank": 16,
+    "title": "Myst, Might, Mayhem",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Martial Arts",
+      "Fantasy"
+    ],
+    "tags": [
+      "Murim & Martial Arts"
+    ],
+    "score": 10,
+    "summary": "A cunning fighter climbs a chaotic martial world by wit as much as force.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Myst%2C+Might%2C+Mayhem",
+    "read_url": ""
+  },
+  {
+    "id": "cheolsu+saves+the+world",
+    "rank": 17,
+    "title": "Cheolsu Saves the World",
+    "type": "Manhwa",
+    "genres": [
+      "Sci-Fi",
+      "Comedy",
+      "Fantasy"
+    ],
+    "tags": [
+      "Sci-Fi"
+    ],
+    "score": 10,
+    "summary": "An ordinary guy is drafted to save a world that keeps testing his patience.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Cheolsu+Saves+the+World",
+    "read_url": ""
+  },
+  {
+    "id": "the+horizon",
+    "rank": 18,
+    "title": "The Horizon",
+    "type": "Manhwa",
+    "genres": [
+      "Psychological",
+      "Drama"
+    ],
+    "tags": [
+      "Psychological"
+    ],
+    "score": 10,
+    "summary": "Two children walk through a ruined, war-torn land in a quiet meditation on loss.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=The+Horizon",
+    "read_url": ""
+  },
+  {
+    "id": "if+ai+ruled+the+world",
+    "rank": 19,
+    "title": "If AI Ruled the World",
+    "type": "Manhwa",
+    "genres": [
+      "Psychological",
+      "Sci-Fi",
+      "Comedy"
+    ],
+    "tags": [
+      "Psychological"
+    ],
+    "score": 10,
+    "summary": "A superintelligent AI takes charge of humanity, for better and for unsettling worse.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=If+AI+Ruled+the+World",
+    "read_url": ""
+  },
+  {
+    "id": "haimiya-senpai+wa+kowakute+kawaii",
+    "rank": 20,
+    "title": "Haimiya-senpai wa Kowakute Kawaii",
+    "type": "Manga",
+    "genres": [
+      "Slice of Life",
+      "Romance",
+      "Comedy"
+    ],
+    "tags": [
+      "Slice of Life / Romance"
+    ],
+    "score": 10,
+    "summary": "A scary-looking senpai turns out to be adorably shy around the one she likes.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Haimiya-senpai+wa+Kowaku",
+    "read_url": ""
+  },
+  {
+    "id": "osoraku+kanojo+wa+ore+no+aniki+wo+neratt",
+    "rank": 21,
+    "title": "Osoraku Kanojo wa Ore no Aniki wo Neratteru",
+    "type": "Manga",
+    "genres": [
+      "Slice of Life",
+      "Romance",
+      "Comedy"
+    ],
+    "tags": [
+      "Slice of Life / Romance"
+    ],
+    "score": 10,
+    "summary": "He's convinced the girl next to him is only after his older brother. Probably.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Osoraku+Kanojo+wa+Ore+no",
+    "read_url": ""
+  },
+  {
+    "id": "li%27l+miss+vampire+can%27t+suck+right",
+    "rank": 22,
+    "title": "Li'l Miss Vampire Can't Suck Right",
+    "type": "Manga",
+    "genres": [
+      "Slice of Life",
+      "Comedy",
+      "Supernatural"
+    ],
+    "tags": [
+      "Slice of Life / Romance"
+    ],
+    "score": 10,
+    "summary": "A tiny vampire who's terrible at biting relies on a very patient human boy.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Li%27l+Miss+Vampire+Can%27t+",
+    "read_url": ""
+  },
+  {
+    "id": "on+the+way+to+meet+mom",
+    "rank": 23,
+    "title": "On the Way to Meet Mom",
+    "type": "Manhwa",
+    "genres": [
+      "Slice of Life",
+      "Drama"
+    ],
+    "tags": [
+      "Slice of Life / Wholesome"
+    ],
+    "score": 10,
+    "summary": "A tender, wholesome journey about family and the long road home.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=On+the+Way+to+Meet+Mom",
+    "read_url": ""
+  },
+  {
+    "id": "ending+maker",
+    "rank": 24,
+    "title": "Ending Maker",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Romance",
+      "Fantasy"
+    ],
+    "tags": [
+      "Action / Romance"
+    ],
+    "score": 10,
+    "summary": "A writer is pulled into his own novel and fights to steer it toward a happy ending.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Ending+Maker",
+    "read_url": ""
+  },
+  {
+    "id": "bad+born+blood",
+    "rank": 25,
+    "title": "Bad Born Blood",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Drama"
+    ],
+    "tags": [
+      "Action / Adventure"
+    ],
+    "score": 9,
+    "summary": "Two rival gang bloodlines collide in a raw story of loyalty and violence.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Bad+Born+Blood",
+    "read_url": ""
+  },
+  {
+    "id": "killer+peter",
+    "rank": 26,
+    "title": "Killer Peter",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Thriller"
+    ],
+    "tags": [
+      "Action / Adventure"
+    ],
+    "score": 9,
+    "summary": "A deadly operative hides in plain sight while his past closes in.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Killer+Peter",
+    "read_url": ""
+  },
+  {
+    "id": "the+boxer",
+    "rank": 27,
+    "title": "The Boxer",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Drama",
+      "Sports"
+    ],
+    "tags": [
+      "Action / Adventure"
+    ],
+    "score": 9,
+    "summary": "A once-in-a-generation talent boxes his way through opponents who each break him open.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=The+Boxer",
+    "read_url": ""
+  },
+  {
+    "id": "sss-class+suicide+hunter",
+    "rank": 28,
+    "title": "SSS-Class Suicide Hunter",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Fantasy"
+    ],
+    "tags": [
+      "Regression & Return"
+    ],
+    "score": 9,
+    "summary": "A hunter with a copy-skill loops through death to steal the powers of the strongest.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=SSS-Class+Suicide+Hunter",
+    "read_url": ""
+  },
+  {
+    "id": "the+extra%27s+academy+survival+guide",
+    "rank": 29,
+    "title": "The Extra's Academy Survival Guide",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Fantasy"
+    ],
+    "tags": [
+      "Regression & Return"
+    ],
+    "score": 9,
+    "summary": "Reborn as a nameless extra in a game, he schemes to survive the main story.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=The+Extra%27s+Academy+Surv",
+    "read_url": ""
+  },
+  {
+    "id": "the+return+of+the+8th+class+mage",
+    "rank": 30,
+    "title": "The Return of the 8th Class Mage",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Fantasy"
+    ],
+    "tags": [
+      "Regression & Return"
+    ],
+    "score": 9,
+    "summary": "The greatest mage returns to his youth to reclaim a power the world forgot.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=The+Return+of+the+8th+Cl",
+    "read_url": ""
+  },
+  {
+    "id": "return+of+the+mad+demon",
+    "rank": 31,
+    "title": "Return of the Mad Demon",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Martial Arts"
+    ],
+    "tags": [
+      "Murim & Martial Arts"
+    ],
+    "score": 9,
+    "summary": "A feared demon of the martial world gets a second life to settle old scores.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Return+of+the+Mad+Demon",
+    "read_url": ""
+  },
+  {
+    "id": "murim+login",
+    "rank": 32,
+    "title": "Murim Login",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Martial Arts",
+      "Fantasy"
+    ],
+    "tags": [
+      "Murim & Martial Arts"
+    ],
+    "score": 9,
+    "summary": "A poor hunter logs into a martial-arts VR world and brings its power home.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Murim+Login",
+    "read_url": ""
+  },
+  {
+    "id": "the+legend+of+the+northern+blade",
+    "rank": 33,
+    "title": "The Legend of the Northern Blade",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Martial Arts"
+    ],
+    "tags": [
+      "Murim & Martial Arts"
+    ],
+    "score": 9,
+    "summary": "The son of a fallen master takes up the Northern Blade against a resurging evil.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=The+Legend+of+the+Northe",
+    "read_url": ""
+  },
+  {
+    "id": "dungeon+odyssey",
+    "rank": 34,
+    "title": "Dungeon Odyssey",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Fantasy"
+    ],
+    "tags": [
+      "Murim & Martial Arts"
+    ],
+    "score": 9,
+    "summary": "A driven adventurer carves through deadly dungeons chasing a distant truth.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Dungeon+Odyssey",
+    "read_url": ""
+  },
+  {
+    "id": "tyrant+of+the+tower+defense+game",
+    "rank": 35,
+    "title": "Tyrant of the Tower Defense Game",
+    "type": "Manhwa",
+    "genres": [
+      "Action",
+      "Fantasy"
+    ],
+    "tags": [
+      "Action / Fantasy"
+    ],
+    "score": 9,
+    "summary": "He wakes as the villain of a tower-defense game and must out-strategize the plot.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Tyrant+of+the+Tower+Defe",
+    "read_url": ""
+  },
+  {
+    "id": "pigpen",
+    "rank": 36,
+    "title": "PIGPEN",
+    "type": "Manhwa",
+    "genres": [
+      "Psychological",
+      "Mystery",
+      "Thriller"
+    ],
+    "tags": [
+      "Psychological"
+    ],
+    "score": 9,
+    "summary": "A man wakes with no memory on a strange ship where nothing is what it seems.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=PIGPEN",
+    "read_url": ""
+  },
+  {
+    "id": "orenchi+no+maid-san",
+    "rank": 37,
+    "title": "Orenchi no Maid-san",
+    "type": "Manga",
+    "genres": [
+      "Slice of Life",
+      "Comedy"
+    ],
+    "tags": [
+      "Slice of Life / Romance"
+    ],
+    "score": 9,
+    "summary": "A gruff man and his cheerful live-in maid settle into an odd, warm household.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=Orenchi+no+Maid-san",
+    "read_url": ""
+  },
+  {
+    "id": "i+started+working+a+housekeeping+job...",
+    "rank": 38,
+    "title": "I Started Working a Housekeeping Job...",
+    "type": "Manga",
+    "genres": [
+      "Slice of Life",
+      "Romance"
+    ],
+    "tags": [
+      "Slice of Life / Romance"
+    ],
+    "score": 9,
+    "summary": "A quiet housekeeping gig slowly grows into something unexpectedly heartfelt.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=I+Started+Working+a+Hous",
+    "read_url": ""
+  },
+  {
+    "id": "the+story+of+how+a+beautiful+foreign+stu",
+    "rank": 39,
+    "title": "The Story of How a Beautiful Foreign Student...",
+    "type": "Manga",
+    "genres": [
+      "Slice of Life",
+      "Romance"
+    ],
+    "tags": [
+      "Slice of Life / Romance"
+    ],
+    "score": 9,
+    "summary": "A shy exchange student and a local classmate fumble toward a sweet connection.",
+    "cover": "https://placehold.co/300x420/1b1430/b9b3e6?text=The+Story+of+How+a+Beaut",
+    "read_url": ""
+  }
+]
