@@ -162,6 +162,32 @@ const SUPABASE_URL     = "";
 const SUPABASE_ANON_KEY = "";
 let   PEOPLE_COUNT     = 5;
 
+/* Your own cover files in the repo's "Manhwa Covers" folder, keyed by title-slug.
+   A file here beats AniList's cover. Add more by dropping a file in that folder
+   and adding a line below (or just tell me and I'll regenerate this). */
+const LOCAL_COVERS = {
+  "a-returner-s-magic-should-be-special":"Manhwa%20Covers/Returner%27s%20Magic%20Should%20Be%20Special.jpg",
+  "eternally-regressing-knight":"Manhwa%20Covers/Eternally%20Regressing%20Knight.jpg",
+  "haimiya-senpai-wa-kowakute-kawaii":"Manhwa%20Covers/Haimiya-senpai%20wa%20Kowakute%20Kawaii.jpg",
+  "killer-peter":"Manhwa%20Covers/Killer%20Peter.webp",
+  "leviathan":"Manhwa%20Covers/Leviathan.jpg",
+  "murim-login":"Manhwa%20Covers/Murim%20Login.jpg",
+  "myst-might-mayhem":"Manhwa%20Covers/Myst%2C%20Might%2C%20Mayhem.jpg",
+  "omniscient-reader-s-viewpoint":"Manhwa%20Covers/Omniscient%20Reader%27s%20Viewpoint.jpg",
+  "player":"Manhwa%20Covers/Player.jpg",
+  "return-of-the-blossoming-blade":"Manhwa%20Covers/Return%20of%20the%20Mount%20Hua%20Sect.jpg",
+  "return-of-the-mad-demon":"Manhwa%20Covers/Return%20of%20the%20Mad%20Demon.jpg",
+  "solo-leveling":"Manhwa%20Covers/Solo%20Leveling.jpg",
+  "sss-class-suicide-hunter":"Manhwa%20Covers/SSS-Class%20Suicide%20Hunter.jpg",
+  "star-embracing-swordmaster":"Manhwa%20Covers/Star-Embracing%20Swordmaster.jpg",
+  "the-legend-of-the-northern-blade":"Manhwa%20Covers/The%20Legend%20of%20the%20Northern%20Blade.jpg",
+  "the-regressed-mercenary-has-a-plan":"Manhwa%20Covers/The%20Regressed%20Mercenary%20Has%20a%20Plan.jpg",
+  "the-return-of-the-8th-class-mage":"Manhwa%20Covers/The%20Return%20of%20the%208th%20Class%20Mage.jpg",
+  "tyrant-of-the-tower-defense-game":"Manhwa%20Covers/Tyrant%20of%20the%20Tower%20Defense%20Game.jpg",
+  "villains-are-destined-to-die":"Manhwa%20Covers/Villains%20Are%20Destined%20to%20Die.jpg",
+  "viral-hit":"Manhwa%20Covers/How%20to%20fight.png"
+};
+
 const useSupabase = SUPABASE_URL && SUPABASE_ANON_KEY;
 let DATA = [];
 let counts = {};                 // { id:{up,down} }
@@ -222,22 +248,28 @@ async function loadSheet(){
 }
 
 function normalize(list){
-  return list.map((x,i) => ({
-    id: x.id || slug(x.title) || ("t"+i),
-    rank: x.rank ?? (i+1),
-    title: x.title || "Untitled",
-    type: x.type || "",
-    genres: Array.isArray(x.genres) ? x.genres : [],
-    tags: Array.isArray(x.tags) ? x.tags : (x.collection ? [x.collection] : []),
-    score: (x.score===0?0:(x.score||null)),
-    chapters: (x.chapters===0?0:(x.chapters||null)),
-    al_id: x.al_id || "",
-    summary: x.summary || "",
-    my_summary: x.my_summary || "",
-    cover: x.cover || placeholder(x.title||""),
-    read_url: x.read_url || "",
-    native: "", aniScore: null, status: "", year: null
-  }));
+  return list.map((x,i) => {
+    const id = x.id || slug(x.title) || ("t"+i);
+    const sheetCover = x.cover||"";
+    const realCover = sheetCover && !/placehold\.co/.test(sheetCover);
+    const cover = realCover ? sheetCover : (LOCAL_COVERS[id] || placeholder(x.title||""));
+    return {
+      id,
+      rank: x.rank ?? (i+1),
+      title: x.title || "Untitled",
+      type: x.type || "",
+      genres: Array.isArray(x.genres) ? x.genres : [],
+      tags: Array.isArray(x.tags) ? x.tags : (x.collection ? [x.collection] : []),
+      score: (x.score===0?0:(x.score||null)),
+      chapters: (x.chapters===0?0:(x.chapters||null)),
+      al_id: x.al_id || "",
+      summary: x.summary || "",
+      my_summary: x.my_summary || "",
+      cover,
+      read_url: x.read_url || "",
+      native: "", aniScore: null, status: "", year: null
+    };
+  });
 }
 function slug(s){ return (s||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); }
 
@@ -258,7 +290,8 @@ async function enrichAniList(){
   const ST={RELEASING:"Ongoing",FINISHED:"Completed",HIATUS:"Hiatus",NOT_YET_RELEASED:"Upcoming",CANCELLED:"Cancelled"};
   DATA.forEach(x=>{
     const m=byId[parseInt(x.al_id)]; if(!m) return;
-    if(m.coverImage&&m.coverImage.large) x.cover=m.coverImage.large;
+    // AniList cover only fills in when you haven't set your own (placeholder or blank)
+    if(m.coverImage&&m.coverImage.large && /placehold\.co/.test(x.cover||"")) x.cover=m.coverImage.large;
     if(m.description && !x.my_summary) x.summary=cleanDesc(m.description);
     if(m.genres&&m.genres.length) x.genres=m.genres;
     if(m.status) x.status=ST[m.status]||"";
@@ -316,7 +349,7 @@ function render(){
     if(sort==="score") return (b.score??-1)-(a.score??-1) || a.rank-b.rank;
     if(sort==="az")    return a.title.localeCompare(b.title);
     if(sort==="likes") return net(b)-net(a) || a.rank-b.rank;
-    return a.rank-b.rank;
+    return a.rank-b.rank || (b.score??-1)-(a.score??-1) || a.title.localeCompare(b.title);
   });
   const grid=document.getElementById("grid"); grid.innerHTML="";
   document.getElementById("empty").style.display=list.length?"none":"block";
