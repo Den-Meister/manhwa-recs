@@ -144,7 +144,7 @@
                        Leave blank and likes are stored per-browser (for testing).
    3) PEOPLE_COUNT   : fallback for the corner counter if the sheet has none.
    ============================================================ */
-const SHEET_CSV_URL   = "";
+const SHEET_CSV_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_7kdr9oFva5-sHT_0FU2jCYlZBmPWM4QtYC-bJwSqr5Vh_Xk35L6tfM1cGW6knuGpnW6ZvZk8CWYD/pub?output=csv";
 const SUPABASE_URL     = "";
 const SUPABASE_ANON_KEY = "";
 let   PEOPLE_COUNT     = 5;
@@ -196,6 +196,8 @@ async function loadSheet(){
     genres: (o.genres||"").split(/[|;]/).map(s=>s.trim()).filter(Boolean),
     tags: (o.tags||o.collection||"").split(/[|;]/).map(s=>s.trim()).filter(Boolean),
     score: parseFloat(o.score)||null,
+    chapters: parseInt(o.chapters)||null,
+    al_id: o.al_id||"",
     summary: o.summary||"",
     cover: o.cover||"",
     read_url: o.read_url||""
@@ -211,6 +213,8 @@ function normalize(list){
     genres: Array.isArray(x.genres) ? x.genres : [],
     tags: Array.isArray(x.tags) ? x.tags : (x.collection ? [x.collection] : []),
     score: (x.score===0?0:(x.score||null)),
+    chapters: (x.chapters===0?0:(x.chapters||null)),
+    al_id: x.al_id || "",
     summary: x.summary || "",
     cover: x.cover || placeholder(x.title||""),
     read_url: x.read_url || ""
@@ -343,6 +347,7 @@ function openModal(x){
           <span class="pill rank">My rank #${x.rank}</span>
           ${x.score!=null?`<span class="pill score">★ ${fmt(x.score)}/10</span>`:""}
           ${x.type?`<span class="pill">${esc(x.type)}</span>`:""}
+          ${x.chapters?`<span class="pill">${x.chapters} ch</span>`:""}
         </div>
         <div class="tags">${x.genres.map(g=>`<span class="tag">${esc(g)}</span>`).join("")}${x.tags.map(t=>`<span class="tag tagx">${esc(t)}</span>`).join("")}</div>
       </div>
