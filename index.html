@@ -80,7 +80,20 @@
     max-width:660px;width:100%;max-height:88vh;overflow:auto;padding:22px}
   .m-top{display:flex;gap:18px}
   .m-top img{width:150px;aspect-ratio:3/4.2;object-fit:cover;border-radius:10px;background:var(--card2);flex:none}
-  .m-title{margin:0 0 6px;font-size:21px;font-weight:600;line-height:1.2}
+  .m-title{margin:0 0 3px;font-size:21px;font-weight:600;line-height:1.2}
+  .m-native{color:var(--muted);font-size:13px;margin-bottom:11px}
+  .m-badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:13px}
+  .mb{background:var(--card2);border:1px solid var(--line2);border-radius:6px;padding:3px 9px;font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.4px}
+  .mb.ok{color:var(--up);border-color:var(--up-line)}
+  .m-info{display:flex;flex-wrap:wrap;gap:18px;margin-bottom:13px}
+  .m-info div{display:flex;flex-direction:column;gap:3px}
+  .m-info u{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;text-decoration:none}
+  .m-info b{font-size:14px;font-weight:600;color:var(--text)}
+  .m-info b.gold{color:var(--gold)}
+  .m-genres{font-size:13px;color:var(--muted2)}
+  .m-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-right:7px}
+  .m-tagsrow{display:flex;align-items:flex-start;gap:9px;margin:0 0 16px}
+  .m-tagsrow .m-lbl{margin-top:7px;flex:none}
   .m-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
   .pill{background:var(--card2);border:1px solid var(--line2);border-radius:999px;padding:3px 10px;font-size:12px;color:var(--muted2)}
   .pill.rank{background:var(--accent-dim);border-color:var(--accent);color:#b9b3e6}
@@ -166,6 +179,9 @@ let activeTags = new Set();
   document.getElementById("peopleN").textContent = PEOPLE_COUNT;
   buildFilters();
   if (useSupabase) await loadCounts();
+  render();                       // fast first paint from the sheet
+  await enrichAniList();          // then pull covers, synopsis, genres, status live
+  buildFilters();                 // rebuild chips in case genres/types changed
   render();
 })();
 
@@ -199,6 +215,7 @@ async function loadSheet(){
     chapters: parseInt(o.chapters)||null,
     al_id: o.al_id||"",
     summary: o.summary||"",
+    my_summary: o.my_summary||"",
     cover: o.cover||"",
     read_url: o.read_url||""
   })));
@@ -216,11 +233,46 @@ function normalize(list){
     chapters: (x.chapters===0?0:(x.chapters||null)),
     al_id: x.al_id || "",
     summary: x.summary || "",
+    my_summary: x.my_summary || "",
     cover: x.cover || placeholder(x.title||""),
-    read_url: x.read_url || ""
+    read_url: x.read_url || "",
+    native: "", aniScore: null, status: "", year: null
   }));
 }
 function slug(s){ return (s||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); }
+
+/* ---------- live enrichment from AniList (cover, synopsis, status, genres) ---------- */
+async function enrichAniList(){
+  const ids=[...new Set(DATA.map(x=>parseInt(x.al_id)).filter(Boolean))];
+  if(!ids.length) return;
+  const q=`query($ids:[Int]){Page(perPage:50){media(id_in:$ids,type:MANGA){id title{native english romaji} description(asHtml:false) genres averageScore status chapters countryOfOrigin coverImage{large} startDate{year}}}}`;
+  let media=[];
+  try{
+    const r=await fetch("https://graphql.anilist.co",{method:"POST",
+      headers:{"Content-Type":"application/json","Accept":"application/json"},
+      body:JSON.stringify({query:q,variables:{ids}})});
+    const j=await r.json();
+    media=(j&&j.data&&j.data.Page&&j.data.Page.media)||[];
+  }catch(e){ console.warn("AniList enrich failed",e); return; }
+  const byId={}; media.forEach(m=>byId[m.id]=m);
+  const ST={RELEASING:"Ongoing",FINISHED:"Completed",HIATUS:"Hiatus",NOT_YET_RELEASED:"Upcoming",CANCELLED:"Cancelled"};
+  DATA.forEach(x=>{
+    const m=byId[parseInt(x.al_id)]; if(!m) return;
+    if(m.coverImage&&m.coverImage.large) x.cover=m.coverImage.large;
+    if(m.description && !x.my_summary) x.summary=cleanDesc(m.description);
+    if(m.genres&&m.genres.length) x.genres=m.genres;
+    if(m.status) x.status=ST[m.status]||"";
+    if(m.averageScore) x.aniScore=m.averageScore;
+    if(m.title&&m.title.native) x.native=m.title.native;
+    if(m.startDate&&m.startDate.year) x.year=m.startDate.year;
+  });
+}
+function cleanDesc(s){
+  return (s||"").replace(/<br\s*\/?>/gi," ").replace(/<[^>]+>/g,"")
+    .replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#0?39;/g,"'")
+    .replace(/&mdash;/g,"—").replace(/&hellip;/g,"…")
+    .replace(/\s*\(Source:.*$/i,"").replace(/\s+/g," ").trim();
+}
 function placeholder(t){ return "https://placehold.co/300x420/1b1430/b9b3e6?text="+encodeURIComponent(t.slice(0,22)); }
 
 /* ---------- filters ---------- */
@@ -341,18 +393,25 @@ function openModal(x){
     <button class="close" onclick="closeModal()">×</button>
     <div class="m-top">
       <img src="${x.cover}" alt="${esc(x.title)}" onerror="this.src='${placeholder(x.title)}'">
-      <div>
+      <div class="m-head">
         <h2 class="m-title">${esc(x.title)}</h2>
-        <div class="m-meta">
-          <span class="pill rank">My rank #${x.rank}</span>
-          ${x.score!=null?`<span class="pill score">★ ${fmt(x.score)}/10</span>`:""}
-          ${x.type?`<span class="pill">${esc(x.type)}</span>`:""}
-          ${x.chapters?`<span class="pill">${x.chapters} ch</span>`:""}
+        ${x.native?`<div class="m-native">${esc(x.native)}</div>`:""}
+        <div class="m-badges">
+          ${x.type?`<span class="mb">${esc(x.type)}</span>`:""}
+          ${x.status?`<span class="mb ${x.status==="Ongoing"?"ok":""}">${esc(x.status)}</span>`:""}
+          ${x.year?`<span class="mb">${x.year}</span>`:""}
+          ${x.chapters?`<span class="mb">${x.chapters} ch</span>`:""}
         </div>
-        <div class="tags">${x.genres.map(g=>`<span class="tag">${esc(g)}</span>`).join("")}${x.tags.map(t=>`<span class="tag tagx">${esc(t)}</span>`).join("")}</div>
+        <div class="m-info">
+          <div><u>My rank</u><b>#${x.rank}</b></div>
+          ${x.score!=null?`<div><u>My score</u><b class="gold">★ ${fmt(x.score)}/10</b></div>`:""}
+          ${x.aniScore?`<div><u>AniList</u><b>${x.aniScore}/100</b></div>`:""}
+        </div>
+        ${x.genres.length?`<div class="m-genres"><span class="m-lbl">Genres</span>${x.genres.map(esc).join(", ")}</div>`:""}
       </div>
     </div>
     <div class="summary">${x.summary?esc(x.summary):"<span style='color:var(--muted)'>No summary yet.</span>"}</div>
+    ${x.tags.length?`<div class="m-tagsrow"><span class="m-lbl">Tags</span><div class="tags">${x.tags.map(t=>`<span class="tag tagx">${esc(t)}</span>`).join("")}</div></div>`:""}
     <div class="m-foot">
       ${x.read_url?`<a class="read" href="${x.read_url}" target="_blank" rel="noopener">Read it here →</a>`:""}
       <span class="vote up ${my==="up"?"on":""}" data-d="up"><span>👍</span><span>${c.up||0}</span></span>
