@@ -263,15 +263,18 @@ async function enrichAniList(){
   const ids=[...new Set(DATA.map(x=>parseInt(x.al_id)).filter(Boolean))];
   if(!ids.length) return;
   const q=`query($ids:[Int]){Page(perPage:50){media(id_in:$ids,type:MANGA){id title{native english romaji} description(asHtml:false) genres averageScore status chapters countryOfOrigin coverImage{large} startDate{year}}}}`;
-  let media=[];
-  try{
-    const r=await fetch("https://graphql.anilist.co",{method:"POST",
-      headers:{"Content-Type":"application/json","Accept":"application/json"},
-      body:JSON.stringify({query:q,variables:{ids}})});
-    const j=await r.json();
-    media=(j&&j.data&&j.data.Page&&j.data.Page.media)||[];
-  }catch(e){ console.warn("AniList enrich failed",e); return; }
-  const byId={}; media.forEach(m=>byId[m.id]=m);
+  const byId={};
+  // AniList returns at most 50 per request, so fetch in chunks of 50
+  for(let k=0;k<ids.length;k+=50){
+    const chunk=ids.slice(k,k+50);
+    try{
+      const r=await fetch("https://graphql.anilist.co",{method:"POST",
+        headers:{"Content-Type":"application/json","Accept":"application/json"},
+        body:JSON.stringify({query:q,variables:{ids:chunk}})});
+      const j=await r.json();
+      ((j&&j.data&&j.data.Page&&j.data.Page.media)||[]).forEach(m=>byId[m.id]=m);
+    }catch(e){ console.warn("AniList chunk failed",e); }
+  }
   const ST={RELEASING:"Ongoing",FINISHED:"Completed",HIATUS:"Hiatus",NOT_YET_RELEASED:"Upcoming",CANCELLED:"Cancelled"};
   DATA.forEach(x=>{
     const m=byId[parseInt(x.al_id)]; if(!m) return;
@@ -483,4 +486,4 @@ function esc(s){ return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">
 </script>
 </body>
 </html>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
