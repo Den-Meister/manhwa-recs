@@ -162,30 +162,15 @@ const SUPABASE_URL     = "";
 const SUPABASE_ANON_KEY = "";
 let   PEOPLE_COUNT     = 5;
 
-/* Your own cover files in the repo's "Manhwa Covers" folder, keyed by title-slug.
-   A file here beats AniList's cover. Add more by dropping a file in that folder
-   and adding a line below (or just tell me and I'll regenerate this). */
-const LOCAL_COVERS = {
-  "a-returner-s-magic-should-be-special":"Manhwa%20Covers/Returner%27s%20Magic%20Should%20Be%20Special.jpg",
-  "eternally-regressing-knight":"Manhwa%20Covers/Eternally%20Regressing%20Knight.jpg",
-  "haimiya-senpai-wa-kowakute-kawaii":"Manhwa%20Covers/Haimiya-senpai%20wa%20Kowakute%20Kawaii.jpg",
-  "killer-peter":"Manhwa%20Covers/Killer%20Peter.webp",
-  "leviathan":"Manhwa%20Covers/Leviathan.jpg",
-  "murim-login":"Manhwa%20Covers/Murim%20Login.jpg",
-  "myst-might-mayhem":"Manhwa%20Covers/Myst%2C%20Might%2C%20Mayhem.jpg",
-  "omniscient-reader-s-viewpoint":"Manhwa%20Covers/Omniscient%20Reader%27s%20Viewpoint.jpg",
-  "player":"Manhwa%20Covers/Player.jpg",
-  "return-of-the-blossoming-blade":"Manhwa%20Covers/Return%20of%20the%20Mount%20Hua%20Sect.jpg",
-  "return-of-the-mad-demon":"Manhwa%20Covers/Return%20of%20the%20Mad%20Demon.jpg",
-  "solo-leveling":"Manhwa%20Covers/Solo%20Leveling.jpg",
-  "sss-class-suicide-hunter":"Manhwa%20Covers/SSS-Class%20Suicide%20Hunter.jpg",
-  "star-embracing-swordmaster":"Manhwa%20Covers/Star-Embracing%20Swordmaster.jpg",
-  "the-legend-of-the-northern-blade":"Manhwa%20Covers/The%20Legend%20of%20the%20Northern%20Blade.jpg",
-  "the-regressed-mercenary-has-a-plan":"Manhwa%20Covers/The%20Regressed%20Mercenary%20Has%20a%20Plan.jpg",
-  "the-return-of-the-8th-class-mage":"Manhwa%20Covers/The%20Return%20of%20the%208th%20Class%20Mage.jpg",
-  "tyrant-of-the-tower-defense-game":"Manhwa%20Covers/Tyrant%20of%20the%20Tower%20Defense%20Game.jpg",
-  "villains-are-destined-to-die":"Manhwa%20Covers/Villains%20Are%20Destined%20to%20Die.jpg",
-  "viral-hit":"Manhwa%20Covers/How%20to%20fight.png"
+/* COVERS — fully automatic.
+   Drop an image in the "Manhwa Covers" folder named exactly after the title
+   (e.g. "Solo Leveling.jpg"), any of .jpg/.png/.webp — the page finds it on its
+   own, no code needed. It beats the AniList cover.
+   The list below is ONLY for files whose name differs from the title. */
+const LOCAL_COVER_ALIAS = {
+  "viral-hit":"Manhwa Covers/How to fight.png",
+  "return-of-the-blossoming-blade":"Manhwa Covers/Return of the Mount Hua Sect.jpg",
+  "a-returner-s-magic-should-be-special":"Manhwa Covers/Returner's Magic Should Be Special.jpg"
 };
 
 const useSupabase = SUPABASE_URL && SUPABASE_ANON_KEY;
@@ -252,7 +237,7 @@ function normalize(list){
     const id = x.id || slug(x.title) || ("t"+i);
     const sheetCover = x.cover||"";
     const realCover = sheetCover && !/placehold\.co/.test(sheetCover);
-    const cover = realCover ? sheetCover : (LOCAL_COVERS[id] || placeholder(x.title||""));
+    const cover = realCover ? sheetCover : placeholder(x.title||"");
     return {
       id,
       rank: x.rank ?? (i+1),
@@ -307,6 +292,23 @@ function cleanDesc(s){
     .replace(/\s*\(Source:.*$/i,"").replace(/\s+/g," ").trim();
 }
 function placeholder(t){ return "https://placehold.co/300x420/1b1430/b9b3e6?text="+encodeURIComponent(t.slice(0,22)); }
+
+/* build the ordered list of cover URLs to try: your file (by title) first, then AniList, then placeholder */
+function coverList(x){
+  const out=[];
+  if(LOCAL_COVER_ALIAS[x.id]) out.push(encodeURI(LOCAL_COVER_ALIAS[x.id]));
+  const base="Manhwa Covers/"+x.title;
+  ["jpg","png","webp","jpeg"].forEach(e=>out.push(encodeURI(base+"."+e)));
+  if(x.cover && !/placehold\.co/.test(x.cover)) out.push(x.cover);
+  out.push(placeholder(x.title));
+  return out;
+}
+function wireCover(img,x){
+  if(!img) return;
+  const list=coverList(x); let i=0;
+  img.src=list[0];
+  img.onerror=()=>{ i++; if(i<list.length) img.src=list[i]; else img.onerror=null; };
+}
 
 /* ---------- filters ---------- */
 function buildFilters(){
@@ -363,8 +365,7 @@ function cardEl(x){
   const el=document.createElement("div"); el.className="card";
   el.innerHTML=`
     <div class="cov">
-      <img src="${x.cover}" alt="${esc(x.title)}" loading="lazy"
-           onerror="this.src='${placeholder(x.title)}'">
+      <img alt="${esc(x.title)}" loading="lazy">
       <span class="badge b-rank">#${x.rank}</span>
       ${x.score!=null?`<span class="badge b-score">★ ${fmt(x.score)}</span>`:""}
       ${x.type?`<span class="badge b-type">${esc(x.type)}</span>`:""}
@@ -380,6 +381,7 @@ function cardEl(x){
           : `<span class="readbtn off">No link yet</span>`}
       </div>
     </div>`;
+  wireCover(el.querySelector(".cov img"), x);
   el.querySelector(".cov").onclick=()=>openModal(x);
   el.querySelector(".title").onclick=()=>openModal(x);
   el.querySelectorAll(".vote").forEach(b=>b.onclick=e=>{e.stopPropagation();castVote(x,b.dataset.d);});
@@ -425,7 +427,7 @@ function openModal(x){
   m.innerHTML=`
     <button class="close" onclick="closeModal()">×</button>
     <div class="m-top">
-      <img src="${x.cover}" alt="${esc(x.title)}" onerror="this.src='${placeholder(x.title)}'">
+      <img alt="${esc(x.title)}">
       <div class="m-head">
         <h2 class="m-title">${esc(x.title)}</h2>
         ${x.native?`<div class="m-native">${esc(x.native)}</div>`:""}
@@ -450,6 +452,7 @@ function openModal(x){
       <span class="vote up ${my==="up"?"on":""}" data-d="up"><span>👍</span><span>${c.up||0}</span></span>
       <span class="vote down ${my==="down"?"on":""}" data-d="down"><span>👎</span><span>${c.down||0}</span></span>
     </div>`;
+  wireCover(m.querySelector(".m-top img"), x);
   m.querySelectorAll(".vote").forEach(b=>b.onclick=()=>castVote(x,b.dataset.d));
   document.getElementById("overlay").classList.add("open");
 }
@@ -480,3 +483,4 @@ function esc(s){ return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">
 </script>
 </body>
 </html>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
