@@ -278,8 +278,11 @@ async function enrichAniList(){
   const ST={RELEASING:"Ongoing",FINISHED:"Completed",HIATUS:"Hiatus",NOT_YET_RELEASED:"Upcoming",CANCELLED:"Cancelled"};
   DATA.forEach(x=>{
     const m=byId[parseInt(x.al_id)]; if(!m) return;
-    // AniList cover only fills in when you haven't set your own (placeholder or blank)
-    if(m.coverImage&&m.coverImage.large && /placehold\.co/.test(x.cover||"")) x.cover=m.coverImage.large;
+    // AniList cover only fills in when you haven't set your own (placeholder or blank).
+    // Routed through the weserv image proxy so AniList's hotlink block can't stop it.
+    if(m.coverImage&&m.coverImage.large && /placehold\.co/.test(x.cover||"")){
+      x.cover="https://images.weserv.nl/?url=ssl:"+m.coverImage.large.replace(/^https?:\/\//,"")+"&w=360&h=504&fit=cover";
+    }
     if(m.description && !x.my_summary) x.summary=cleanDesc(m.description);
     if(m.genres&&m.genres.length) x.genres=m.genres;
     if(m.status) x.status=ST[m.status]||"";
@@ -486,4 +489,4 @@ function esc(s){ return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">
 </script>
 </body>
 </html>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                                                                                            
