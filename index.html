@@ -302,8 +302,7 @@ function coverList(x){
   if(LOCAL_COVER_ALIAS[x.id]) out.push(encodeURI(LOCAL_COVER_ALIAS[x.id]));
   const base="Manhwa Covers/"+x.title;
   ["jpg","png","webp"].forEach(e=>out.push(encodeURI(base+"."+e)));
-  if(x.cover && !/placehold\.co/.test(x.cover)) out.push(x.cover);          // AniList cover from the live fetch (if it worked)
-  if(x.al_id) out.push("https://img.anili.st/media/"+x.al_id);              // direct AniList image by ID — no fetch, no CORS, always works
+  if(x.cover && !/placehold\.co/.test(x.cover)) out.push(x.cover);          // clean AniList portrait cover from the live fetch
   out.push(placeholder(x.title));
   return out;
 }
@@ -369,7 +368,7 @@ function cardEl(x){
   const el=document.createElement("div"); el.className="card";
   el.innerHTML=`
     <div class="cov">
-      <img alt="${esc(x.title)}" loading="lazy">
+      <img alt="${esc(x.title)}" loading="lazy" referrerpolicy="no-referrer">
       <span class="badge b-rank">#${x.rank}</span>
       ${x.score!=null?`<span class="badge b-score">★ ${fmt(x.score)}</span>`:""}
       ${x.type?`<span class="badge b-type">${esc(x.type)}</span>`:""}
@@ -431,7 +430,7 @@ function openModal(x){
   m.innerHTML=`
     <button class="close" onclick="closeModal()">×</button>
     <div class="m-top">
-      <img alt="${esc(x.title)}">
+      <img alt="${esc(x.title)}" referrerpolicy="no-referrer">
       <div class="m-head">
         <h2 class="m-title">${esc(x.title)}</h2>
         ${x.native?`<div class="m-native">${esc(x.native)}</div>`:""}
@@ -487,4 +486,4 @@ function esc(s){ return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">
 </script>
 </body>
 </html>
-                                                                                                                                                                                                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
