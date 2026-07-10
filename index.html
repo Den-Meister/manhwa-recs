@@ -294,7 +294,16 @@ function cleanDesc(s){
     .replace(/&mdash;/g,"—").replace(/&hellip;/g,"…")
     .replace(/\s*\(Source:.*$/i,"").replace(/\s+/g," ").trim();
 }
-function placeholder(t){ return "https://placehold.co/300x420/1b1430/b9b3e6?text="+encodeURIComponent(t.slice(0,22)); }
+function placeholder(t){
+  // A self-contained SVG (no network, nothing to block) — a clean branded card with the title.
+  const words=(t||"").replace(/[<>&]/g,"").split(/\s+/);
+  const lines=[]; let cur="";
+  words.forEach(w=>{ if((cur+" "+w).trim().length>18){ if(cur)lines.push(cur); cur=w; } else cur=(cur+" "+w).trim(); });
+  if(cur)lines.push(cur); const L=lines.slice(0,4);
+  const tspans=L.map((ln,i)=>`<text x='150' y='${210-(L.length-1)*13+i*26}' fill='#b9b3e6' font-family='system-ui,sans-serif' font-size='16' text-anchor='middle'>${ln}</text>`).join("");
+  const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='300' height='420'><rect width='300' height='420' fill='#1b1430'/>${tspans}</svg>`;
+  return "data:image/svg+xml,"+encodeURIComponent(svg);
+}
 
 /* build the ordered list of cover URLs to try: your file (by title) first, then AniList, then placeholder */
 function coverList(x){
@@ -486,4 +495,3 @@ function esc(s){ return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">
 </script>
 </body>
 </html>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
