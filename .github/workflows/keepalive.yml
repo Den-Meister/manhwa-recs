@@ -1,0 +1,25 @@
+name: Keep Supabase awake
+ 
+# Runs a tiny invisible request to your Supabase database every 3 days so it
+# never hits the "paused after 7 idle days" limit. No one sees this. It just
+# keeps your shared 👍/👎 always working. You can also run it by hand from the
+# GitHub "Actions" tab (the "Run workflow" button) to test it.
+ 
+on:
+  schedule:
+    - cron: "0 6 */3 * *"   # 06:00 UTC, every 3rd day
+  workflow_dispatch:         # lets you run it manually
+ 
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://oqancpagqwhxbiufvcin.supabase.co/rest/v1/vote_counts?select=id&limit=1" \
+            -H "apikey: sb_publishable_dbo9phCX6jW3rNrvtrwEVQ_JFWPU-HQ" \
+            -H "Authorization: Bearer sb_publishable_dbo9phCX6jW3rNrvtrwEVQ_JFWPU-HQ")
+          echo "Supabase responded with HTTP $code"
+          # 200 = success. Anything else just means check the URL/key.
+ 
