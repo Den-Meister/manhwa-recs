@@ -352,7 +352,7 @@ async function enrichAniList(){
     // AniList cover only fills in when you haven't set your own (placeholder or blank).
     if(m.coverImage&&m.coverImage.large) x.aniCover=m.coverImage.large;
     if(m.description && !x.my_summary) x.summary=cleanDesc(m.description);
-    if(m.genres&&m.genres.length) x.genres=m.genres;
+    if((!x.genres||!x.genres.length)&&m.genres&&m.genres.length) x.genres=m.genres; // AniList only fills genres when the sheet has none; Den's curated genres win
     if(m.status) x.status=ST[m.status]||"";
     if(m.averageScore) x.aniScore=m.averageScore;
     if(m.title&&m.title.native) x.native=m.title.native;
