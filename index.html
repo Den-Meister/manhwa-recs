@@ -43,7 +43,8 @@
   .chip{background:var(--card2);color:var(--muted2);border:1px solid var(--line2);
     border-radius:999px;padding:5px 12px;font-size:12px;cursor:pointer;user-select:none;transition:.14s}
   .chip:hover{border-color:var(--accent)}
-  .chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .chip.inc{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .chip.exc{background:var(--down-bg);color:var(--down);border-color:var(--down-line);text-decoration:line-through}
   .chiprow{display:flex;gap:10px;align-items:flex-start;flex-basis:100%}
   .chiprow .lbl{margin-top:7px;flex:none;min-width:52px}
   .clear{font-size:12px;color:var(--muted);cursor:pointer;text-decoration:underline;margin-left:auto}
@@ -138,6 +139,7 @@
     <span class="clear" id="clearBtn">Clear</span>
     <div class="chiprow"><span class="lbl">Genres</span><div class="chips" id="genreChips"></div></div>
     <div class="chiprow"><span class="lbl">Tags</span><div class="chips" id="tagChips"></div></div>
+    <div style="flex-basis:100%;font-size:11px;color:var(--muted);margin-top:2px">Tap to require · tap again to exclude · third tap clears · shows titles matching all requirements</div>
   </div>
 
   <p class="count" id="count"></p>
@@ -158,8 +160,8 @@
    3) PEOPLE_COUNT   : fallback for the corner counter if the sheet has none.
    ============================================================ */
 const SHEET_CSV_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_7kdr9oFva5-sHT_0FU2jCYlZBmPWM4QtYC-bJwSqr5Vh_Xk35L6tfM1cGW6knuGpnW6ZvZk8CWYD/pub?output=csv";
-const SUPABASE_URL     = "";
-const SUPABASE_ANON_KEY = "";
+const SUPABASE_URL     = "https://oqancpagqwhxbiufvcin.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_dbo9phCX6jW3rNrvtrwEVQ_JFWPU-HQ";
 let   PEOPLE_COUNT     = 5;
 
 /* COVERS — fully automatic.
@@ -245,8 +247,8 @@ const LOCAL_COVER_ALIAS = {
 const useSupabase = SUPABASE_URL && SUPABASE_ANON_KEY;
 let DATA = [];
 let counts = {};                 // { id:{up,down} }
-let activeGenres = new Set();
-let activeTags = new Set();
+let genreInc = new Set(), genreExc = new Set();
+let tagInc = new Set(), tagExc = new Set();
 
 /* ---------- boot ---------- */
 (async function(){
@@ -398,25 +400,32 @@ function wireCover(img,x){
 
 /* ---------- filters ---------- */
 function buildFilters(){
-  const types = [...new Set(DATA.map(x=>x.type).filter(Boolean))].sort();
-  const tf = document.getElementById("typeFilter");
-  types.forEach(t => { const o=document.createElement("option"); o.value=t; o.textContent=t; tf.appendChild(o); });
-  chipSet("genreChips", [...new Set(DATA.flatMap(x=>x.genres))].sort(), activeGenres);
-  chipSet("tagChips",   [...new Set(DATA.flatMap(x=>x.tags))].sort(),   activeTags);
+  const tf = document.getElementById("typeFilter"); const cur=tf.value;
+  tf.innerHTML='<option value="">All</option>';
+  [...new Set(DATA.map(x=>x.type).filter(Boolean))].sort().forEach(t => { const o=document.createElement("option"); o.value=t; o.textContent=t; tf.appendChild(o); });
+  tf.value=cur;
+  chipSet("genreChips", [...new Set(DATA.flatMap(x=>x.genres))].sort(), genreInc, genreExc);
+  chipSet("tagChips",   [...new Set(DATA.flatMap(x=>x.tags))].sort(),   tagInc, tagExc);
   tf.onchange=render; document.getElementById("sortBy").onchange=render;
   document.getElementById("searchBox").oninput=render;
   document.getElementById("clearBtn").onclick=()=>{
     tf.value=""; document.getElementById("searchBox").value=""; document.getElementById("sortBy").value="rank";
-    activeGenres.clear(); activeTags.clear();
-    document.querySelectorAll(".chip.active").forEach(c=>c.classList.remove("active"));
+    genreInc.clear(); genreExc.clear(); tagInc.clear(); tagExc.clear();
+    document.querySelectorAll(".chip").forEach(c=>c.className="chip");
     render();
   };
 }
-function chipSet(boxId, values, set){
-  const box=document.getElementById(boxId);
+function chipSet(boxId, values, inc, exc){
+  const box=document.getElementById(boxId); box.innerHTML="";
   values.forEach(v => {
-    const c=document.createElement("span"); c.className="chip"; c.textContent=v;
-    c.onclick=()=>{ c.classList.toggle("active"); set.has(v)?set.delete(v):set.add(v); render(); };
+    const c=document.createElement("span"); c.textContent=v;
+    c.className="chip"+(inc.has(v)?" inc":exc.has(v)?" exc":"");
+    c.onclick=()=>{
+      if(!inc.has(v)&&!exc.has(v)){ inc.add(v); c.className="chip inc"; }
+      else if(inc.has(v)){ inc.delete(v); exc.add(v); c.className="chip exc"; }
+      else { exc.delete(v); c.className="chip"; }
+      render();
+    };
     box.appendChild(c);
   });
 }
@@ -429,8 +438,10 @@ function render(){
   let list=DATA.filter(x=>{
     if(type && x.type!==type) return false;
     if(q && !x.title.toLowerCase().includes(q)) return false;
-    if(activeGenres.size && !x.genres.some(g=>activeGenres.has(g))) return false;
-    if(activeTags.size && !x.tags.some(t=>activeTags.has(t))) return false;
+    if(genreInc.size && ![...genreInc].every(g=>x.genres.includes(g))) return false;
+    if(genreExc.size && x.genres.some(g=>genreExc.has(g))) return false;
+    if(tagInc.size && ![...tagInc].every(t=>x.tags.includes(t))) return false;
+    if(tagExc.size && x.tags.some(t=>tagExc.has(t))) return false;
     return true;
   });
   list.sort((a,b)=>{
