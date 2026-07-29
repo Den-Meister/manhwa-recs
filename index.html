@@ -108,6 +108,13 @@
   .close{position:sticky;top:-4px;float:right;background:none;border:none;color:var(--muted);font-size:26px;cursor:pointer;line-height:1}
   .empty,.loading{text-align:center;color:var(--muted);padding:50px 0}
   @media(max-width:520px){.m-top{flex-direction:column}.m-top img{width:120px}.people{margin-left:0}}
+  .gloss h3{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--accent);margin:20px 0 8px;border-bottom:1px solid var(--line2);padding-bottom:6px}
+  .gloss h3:first-child{margin-top:0}
+  .grow{display:grid;grid-template-columns:160px 1fr;gap:12px;padding:7px 2px;border-bottom:1px solid var(--line)}
+  .gterm{color:var(--text);font-weight:600;font-size:13px}
+  .gdesc{color:var(--muted2);font-size:13px}
+  .glossbtn{cursor:pointer}
+  @media(max-width:560px){.grow{grid-template-columns:1fr;gap:2px}}
 </style>
 </head>
 <body>
@@ -136,7 +143,8 @@
       </select>
     </div>
     <input type="search" id="searchBox" placeholder="Search titles…">
-    <span class="clear" id="clearBtn">Clear</span>
+    <span class="clear glossbtn" id="glossaryBtn">&#8505; Glossary</span>
+    <span class="clear" id="clearBtn" style="margin-left:14px">Clear</span>
     <div class="chiprow"><span class="lbl">Genres</span><div class="chips" id="genreChips"></div></div>
     <div class="chiprow"><span class="lbl">Tags</span><div class="chips" id="tagChips"></div></div>
     <div style="flex-basis:100%;font-size:11px;color:var(--muted);margin-top:2px">Tap to require · tap again to exclude · third tap clears · shows titles matching all requirements</div>
@@ -170,6 +178,12 @@ let   PEOPLE_COUNT     = 5;
    own, no code needed. It beats the AniList cover.
    The list below is ONLY for files whose name differs from the title. */
 const LOCAL_COVER_ALIAS = {
+  "chronicles-of-the-demon-slaying-cultivator":"Manhwa Covers/Chronicles of the Demon-Slaying Cultivator.jpg",
+  "grand-duchess-s-constitution":"Manhwa Covers/Grand Duchess's Constitution.jpg",
+  "heavenly-demon-cultivation-simulation":"Manhwa Covers/Heavenly Demon Cultivation Simulation.jpg",
+  "like-a-chilling-flame":"Manhwa Covers/Like a Chilling Flame.jpg",
+  "the-delinquent-shimizu-san-sitting-next-to-me-has-dyed-her-hair-black":"Manhwa Covers/The Delinquent Shimizu-san Sitting Next to Me Has Dyed Her Hair Black.jpg",
+  "warrior-kariel":"Manhwa Covers/Warrior Kariel.jpg",
   "myst-might-mayhem":"Manhwa Covers/Myst, Might, Mayhem.jpg",
   "got-dropped-into-a-ghost-story-but-still-gotta-work":"Manhwa Covers/Got Dropped into a Ghost Story, Still Gotta Work.jpg",
   "absolute-sword-sense":"Manhwa Covers/Absolute Sword Sense.jpg",
@@ -433,12 +447,17 @@ function buildFilters(){
     document.querySelectorAll(".chip").forEach(c=>c.className="chip");
     render();
   };
+  document.getElementById("glossaryBtn").onclick=openGlossary;
 }
+const GLOSSARY = {"action": "Fast-paced stories built around physical confrontation, battles, and combat. Tension and movement drive every scene.", "adventure": "Journey-driven narratives centered on exploration, quests, and discovery. The world itself is as much a character as the cast.", "comedy": "Light-hearted stories designed to entertain through humor, misunderstandings, and absurd situations.", "cultivation": "Protagonists who grow in power by training spiritual or magical disciplines — common in Chinese Xianxia and Wuxia fiction. Progress is methodical and deeply satisfying.", "drama": "Emotionally driven stories where character development and interpersonal conflict take center stage over action.", "ecchi": "Content featuring mild sexual themes and suggestive situations without being fully explicit.", "fantasy": "Stories set in imaginary worlds featuring magic, mythical creatures, or supernatural systems built from scratch.", "historical": "Stories set in a distinct past era, drawing on the customs, politics, and aesthetics of history.", "horror": "Stories designed to frighten, unsettle, or disturb — through atmosphere, tension, or outright terror.", "isekai": "Protagonists transported to another world — typically fantasy — often with overpowered abilities or special knowledge from their original life.", "magic": "Stories where the magic system itself becomes inseparable from the protagonist or a key character's identity — the rules, limitations, and growth of their arcane power actively shape who they are and drive the plot forward. Magic isn't just present in the world; it is the story.", "martial arts": "Stories centered on physical combat disciplines, fighting techniques, and the mastery of the body as a weapon — spanning everything from street brawls to ancient wuxia traditions.", "mecha": "Stories featuring giant mechanical robots, usually piloted by human characters. Equal parts engineering fantasy and human drama.", "murim": "Korean martial arts genre set in a hidden world of clans, masters, and ancient combat traditions. Imagine Wuxia filtered through Korean storytelling.", "music": "Stories centered on musical performance, composition, competitions, or the personal cost of a life in music.", "mystery": "Narratives built around unsolved puzzles, crimes, or secrets. The reader and protagonist unravel the truth together.", "psychological": "Stories that dive deep into the mental and emotional inner workings of characters — unreliable narrators, mind games, and moral ambiguity.", "romance": "Stories focused on the development of love and emotional bonds between characters. The relationship is the plot.", "sci-fi": "Speculative fiction driven by advanced science and technology — futures, space, artificial intelligence, and the questions they raise.", "slice of life": "Stories that capture the quiet texture of everyday existence — ordinary moments, routines, and small human connections.", "sports": "Stories centered on athletic competition, teamwork, and personal growth. Victory is earned through discipline and sacrifice.", "supernatural": "Stories involving ghosts, spirits, divine powers, or phenomena that exist beyond natural explanation.", "thriller": "Tension-filled stories that keep the reader on edge through suspense, danger, and escalating stakes.", "axed/rushed": "A series that was cancelled or forcibly ended before its natural conclusion — resulting in a rushed, incomplete, or abrupt final arc due to poor sales or editorial cuts.", "contract marriage": "The main couple enters into a fake engagement or strategic marital arrangement for safety, politics, or convenience before catching real feelings.", "enemies to lovers": "The romantic leads begin as rivals, adversaries, or outright enemies before gradually developing deep, undeniable feelings for each other.", "family": "The plot centers heavily on bloodline lineages, ancestral houses, clan dynamics, or building tight familial bonds with parents and siblings.", "genius mc": "The protagonist relies predominantly on extraordinary tactical calculations, professional expertise, or absolute strategic intellect rather than raw muscle.", "grumpy fl": "A sharp-tongued, highly cynical, intimidatingly strict, or completely unbothered female lead who looks down on others.", "grumpy ml": "The primary male lead features a completely cold, stern, emotionally detached, or stoic unbothered demeanor.", "gyaru / gal": "The romance or slice-of-life comedy is driven by a fashionable, outspoken, and beautifully expressive Gyaru heroine.", "healing plot": "Stories centered on emotional recovery and personal restoration — a protagonist slowly overcomes past trauma, broken trust, or deep psychological wounds through meaningful bonds, safe environments, and small acts of genuine care. The journey inward is the main arc.", "heavy politics": "The narrative focuses deeply on imperial court factions, noble succession disputes, territorial security, and strategic societal scheming.", "hidden identity": "The protagonist deliberately conceals their real rank, high power, or elite true status to pass as a weak, unassuming background extra.", "magic academy": "A massive portion of the story takes place within a school or training institute environment featuring class rankings and tournaments.", "modern fantasy": "A contemporary real-world setting altered by the sudden appearance of modern dungeons, supernatural awakenings, and raid portals.", "obsessive fl": "The female lead showcases intense, overbearing, deeply protective, or outright yandere attachment to the protagonist.", "obsessive ml": "The male lead exhibits hyper-intense, over-possessive, deeply jealous, or borderline yandere tracking traits regarding the female lead.", "overpowered mc": "The main character possesses completely unmatched combat strength, broken cheat abilities, or peerless power right from the start.", "popular fl": "The female lead is universally celebrated within her school or social environment as a top-tier beauty, superstar, or beloved idol.", "popular ml": "The male lead is highly sought-after, acting as a prominent school prince, top superstar actor, or public idol.", "quiet fl": "The female lead is a quiet, plain, background-dwelling, or \"Jimiko\" archetype who avoids attention.", "quiet ml": "The male lead has a deeply introverted, socially reserved, quiet, background-dwelling, or \"Inkya\" persona who tries to blend into the scenery.", "regression": "The protagonist rewinds time back to a specific point in their own past lifespan to relive their life with future knowledge.", "reincarnation": "The protagonist dies and their soul is reborn or transmigrated into a completely different body or a new fantasy world.", "revenge plot": "The core motivation driving the entire story arc is purely transactional vengeance or settling a blood-vow score against past betrayers.", "slow burn romance": "The romantic relationship develops with agonizing patience across many chapters — tension and feelings build slowly long before any confession, kiss, or resolution pays off.", "slow life": "The main character completely avoids global conflicts, high-stakes adventuring, or complex noble drama to run a quiet farm, café, or shop.", "sunshine fl": "The primary female lead is extraordinarily bright, deeply radiant, wholesome, and enthusiastically optimistic.", "sunshine ml": "An exceptionally high-energy, cheerful, endlessly radiant, or golden-retriever-coded male lead.", "system": "The protagonist alone utilizes an exclusive, video-game-like interface displaying status windows, exclusive level-ups, and quest tracking.", "tower climbing": "The progression layout centers entirely around physically ascending dungeon layers, mysterious tower floors, or multi-tiered trial labyrinths.", "villain ml": "The story follows a primary male lead who fulfills a genuinely dark, anti-heroic, tyrannical, or villainous archetype.", "villainess fl": "The female lead is transmigrated into, reborn as, or acts as the designated antagonist of an otome game or romance novel.", "zero to hero": "The main character begins at absolute rock-bottom status with zero natural talent, growing exclusively through grueling effort and suffering."};
+function glossDesc(v){ return GLOSSARY[(v||"").toLowerCase().trim()] || ""; }
+
 function chipSet(boxId, values, inc, exc){
   const box=document.getElementById(boxId); box.innerHTML="";
   values.forEach(v => {
     const c=document.createElement("span"); c.textContent=v;
     c.className="chip"+(inc.has(v)?" inc":exc.has(v)?" exc":"");
+    c.title=glossDesc(v);
     c.onclick=()=>{
       if(!inc.has(v)&&!exc.has(v)){ inc.add(v); c.className="chip inc"; }
       else if(inc.has(v)){ inc.delete(v); exc.add(v); c.className="chip exc"; }
@@ -537,6 +556,16 @@ async function sendVote(id,prev,next){
 }
 
 /* ---------- modal ---------- */
+function openGlossary(){
+  const G=[...new Set(DATA.flatMap(x=>x.genres))].sort();
+  const T=[...new Set(DATA.flatMap(x=>x.tags))].sort();
+  const rows=arr=>arr.map(v=>`<div class="grow"><div class="gterm">${esc(v)}</div><div class="gdesc">${esc(glossDesc(v)||"\u2014")}</div></div>`).join("");
+  document.getElementById("modal").innerHTML=
+    `<button class="close" onclick="closeModal()">\u00d7</button>`+
+    `<div class="gloss"><h3>Genres</h3>${rows(G)}<h3>Tags</h3>${rows(T)}</div>`;
+  document.getElementById("overlay").classList.add("open");
+}
+
 function openModal(x){
   const c=counts[x.id]||{up:0,down:0}, my=myVote(x.id);
   const m=document.getElementById("modal");
