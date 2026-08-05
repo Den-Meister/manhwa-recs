@@ -134,6 +134,9 @@
     <div class="grp"><span class="lbl">Type</span>
       <select id="typeFilter"><option value="">All</option></select>
     </div>
+    <div class="grp"><span class="lbl">Status</span>
+      <select id="statusFilter"><option value="">All</option></select>
+    </div>
     <div class="grp"><span class="lbl">Sort</span>
       <select id="sortBy">
         <option value="rank">Den's ranking</option>
@@ -437,12 +440,17 @@ function buildFilters(){
   tf.innerHTML='<option value="">All</option>';
   [...new Set(DATA.map(x=>x.type).filter(Boolean))].sort().forEach(t => { const o=document.createElement("option"); o.value=t; o.textContent=t; tf.appendChild(o); });
   tf.value=cur;
+  const sf=document.getElementById("statusFilter"); const scur=sf.value;
+  sf.innerHTML='<option value="">All</option>';
+  [...new Set(DATA.map(x=>x.status).filter(Boolean))].sort().forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;sf.appendChild(o);});
+  sf.value=scur; sf.onchange=render;
   chipSet("genreChips", [...new Set(DATA.flatMap(x=>x.genres))].sort(), genreInc, genreExc);
   chipSet("tagChips",   [...new Set(DATA.flatMap(x=>x.tags))].sort(),   tagInc, tagExc);
   tf.onchange=render; document.getElementById("sortBy").onchange=render;
   document.getElementById("searchBox").oninput=render;
   document.getElementById("clearBtn").onclick=()=>{
     tf.value=""; document.getElementById("searchBox").value=""; document.getElementById("sortBy").value="rank";
+    document.getElementById("statusFilter").value="";
     genreInc.clear(); genreExc.clear(); tagInc.clear(); tagExc.clear();
     document.querySelectorAll(".chip").forEach(c=>c.className="chip");
     render();
@@ -471,10 +479,12 @@ function chipSet(boxId, values, inc, exc){
 /* ---------- render ---------- */
 function render(){
   const type=document.getElementById("typeFilter").value;
+  const status=document.getElementById("statusFilter").value;
   const sort=document.getElementById("sortBy").value;
   const q=document.getElementById("searchBox").value.toLowerCase().trim();
   let list=DATA.filter(x=>{
     if(type && x.type!==type) return false;
+    if(status && x.status!==status) return false;
     if(q && !x.title.toLowerCase().includes(q)) return false;
     if(genreInc.size && ![...genreInc].every(g=>x.genres.includes(g))) return false;
     if(genreExc.size && x.genres.some(g=>genreExc.has(g))) return false;
