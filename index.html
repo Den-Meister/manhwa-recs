@@ -137,6 +137,16 @@
     <div class="grp"><span class="lbl">Status</span>
       <select id="statusFilter"><option value="">All</option></select>
     </div>
+    <div class="grp"><span class="lbl">Chapters</span>
+      <select id="chapterFilter">
+        <option value="">All</option>
+        <option value="lt50">Under 50</option>
+        <option value="50-100">50 &ndash; 100</option>
+        <option value="101-200">101 &ndash; 200</option>
+        <option value="gt200">200+</option>
+        <option value="unknown">Unknown</option>
+      </select>
+    </div>
     <div class="grp"><span class="lbl">Sort</span>
       <select id="sortBy">
         <option value="rank">Den's ranking</option>
@@ -181,6 +191,12 @@ let   PEOPLE_COUNT     = 5;
    own, no code needed. It beats the AniList cover.
    The list below is ONLY for files whose name differs from the title. */
 const LOCAL_COVER_ALIAS = {
+  "nano-machine":"Manhwa Covers/Nano Machine.jpg",
+  "the-quintessential-quintuplets":"Manhwa Covers/The Quintessential Quintuplets.jpg",
+  "the-perks-of-being-an-s-class-heroine":"Manhwa Covers/The Perks of Being an S-Class Heroine.jpg",
+  "charming-the-duke-of-the-north":"Manhwa Covers/Charming the Duke of the North.jpg",
+  "this-witch-of-mine":"Manhwa Covers/This Witch of Mine.jpg",
+  "reincarnation-of-the-veteran-soldier":"Manhwa Covers/Reincarnation of the Veteran Soldier.jpg",
   "chronicles-of-the-demon-slaying-cultivator":"Manhwa Covers/Chronicles of the Demon-Slaying Cultivator.jpg",
   "grand-duchess-s-constitution":"Manhwa Covers/Grand Duchess's Constitution.jpg",
   "heavenly-demon-cultivation-simulation":"Manhwa Covers/Heavenly Demon Cultivation Simulation.jpg",
@@ -393,6 +409,7 @@ async function enrichAniList(){
     if(m.averageScore) x.aniScore=m.averageScore;
     if(m.title&&m.title.native) x.native=m.title.native;
     if(m.startDate&&m.startDate.year) x.year=m.startDate.year;
+    if((x.chapters==null||x.chapters===0)&&m.chapters) x.chapters=m.chapters; // fill chapter count from AniList when the sheet is blank
   });
 }
 function cleanDesc(s){
@@ -446,11 +463,11 @@ function buildFilters(){
   sf.value=scur; sf.onchange=render;
   chipSet("genreChips", [...new Set(DATA.flatMap(x=>x.genres))].sort(), genreInc, genreExc);
   chipSet("tagChips",   [...new Set(DATA.flatMap(x=>x.tags))].sort(),   tagInc, tagExc);
-  tf.onchange=render; document.getElementById("sortBy").onchange=render;
+  tf.onchange=render; document.getElementById("chapterFilter").onchange=render; document.getElementById("sortBy").onchange=render;
   document.getElementById("searchBox").oninput=render;
   document.getElementById("clearBtn").onclick=()=>{
     tf.value=""; document.getElementById("searchBox").value=""; document.getElementById("sortBy").value="rank";
-    document.getElementById("statusFilter").value="";
+    document.getElementById("statusFilter").value=""; document.getElementById("chapterFilter").value="";
     genreInc.clear(); genreExc.clear(); tagInc.clear(); tagExc.clear();
     document.querySelectorAll(".chip").forEach(c=>c.className="chip");
     render();
@@ -480,11 +497,13 @@ function chipSet(boxId, values, inc, exc){
 function render(){
   const type=document.getElementById("typeFilter").value;
   const status=document.getElementById("statusFilter").value;
+  const chap=document.getElementById("chapterFilter").value;
   const sort=document.getElementById("sortBy").value;
   const q=document.getElementById("searchBox").value.toLowerCase().trim();
   let list=DATA.filter(x=>{
     if(type && x.type!==type) return false;
     if(status && x.status!==status) return false;
+    if(chap && !chapMatch(x.chapters, chap)) return false;
     if(q && !x.title.toLowerCase().includes(q)) return false;
     if(genreInc.size && ![...genreInc].every(g=>x.genres.includes(g))) return false;
     if(genreExc.size && x.genres.some(g=>genreExc.has(g))) return false;
@@ -504,6 +523,16 @@ function render(){
   list.forEach(x=>grid.appendChild(cardEl(x)));
 }
 function net(x){ const c=counts[x.id]||{up:0,down:0}; return (c.up||0)-(c.down||0); }
+function chapMatch(n,b){
+  const has=(n!=null&&n>0);
+  if(b==="unknown") return !has;
+  if(!has) return false;
+  if(b==="lt50")    return n<50;
+  if(b==="50-100")  return n>=50&&n<=100;
+  if(b==="101-200") return n>=101&&n<=200;
+  if(b==="gt200")   return n>200;
+  return true;
+}
 
 function cardEl(x){
   const c=counts[x.id]||{up:0,down:0}; const my=myVote(x.id);
