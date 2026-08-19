@@ -115,6 +115,24 @@
   .gdesc{color:var(--muted2);font-size:13px}
   .glossbtn{cursor:pointer}
   @media(max-width:560px){.grow{grid-template-columns:1fr;gap:2px}}
+  /* notes */
+  .notes{margin-top:16px;border-top:1px solid var(--line2);padding-top:12px}
+  .notes h4{margin:0 0 8px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+  .note{background:var(--card2);border:1px solid var(--line2);border-radius:9px;padding:8px 11px;margin-bottom:8px}
+  .note .nmeta{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--muted);margin-bottom:3px}
+  .note .nname{font-weight:600;color:var(--muted2)}
+  .note .nbody{font-size:13px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
+  .note .nact button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;padding:0 0 0 8px}
+  .note .nact button:hover{color:var(--accent)}
+  .ncompose{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+  .ncompose input,.ncompose textarea{background:var(--card2);border:1px solid var(--line2);border-radius:8px;color:var(--text);padding:8px 10px;font:inherit;font-size:13px;width:100%;box-sizing:border-box}
+  .ncompose textarea{resize:vertical;min-height:54px}
+  .ncompose .nrow{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .ncompose .cnt{font-size:11px;color:var(--muted)}
+  .npost{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 15px;cursor:pointer;font:inherit;font-weight:600}
+  .npost:disabled{opacity:.6;cursor:default}
+  .nlock{font-size:12px;color:var(--muted);background:var(--card2);border:1px dashed var(--line2);border-radius:8px;padding:9px 11px;text-align:center;margin-top:8px}
+  .nempty{font-size:12px;color:var(--muted);margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -299,6 +317,7 @@ const LOCAL_COVER_ALIAS = {
 const useSupabase = SUPABASE_URL && SUPABASE_ANON_KEY;
 let DATA = [];
 let counts = {};                 // { id:{up,down} }
+let notesByTitle = {};           // { title_id:[note,...] }
 let genreInc = new Set(), genreExc = new Set();
 let tagInc = new Set(), tagExc = new Set();
 
@@ -313,6 +332,7 @@ let tagInc = new Set(), tagExc = new Set();
   document.getElementById("peopleN").textContent = PEOPLE_COUNT;
   buildFilters();
   if (useSupabase) await loadCounts();
+  if (useSupabase) await loadNotes();
   render();                       // fast first paint from the sheet
   await enrichAniList();          // then pull covers, synopsis, genres, status live
   buildFilters();                 // rebuild chips in case genres/types changed
@@ -594,6 +614,60 @@ async function sendVote(id,prev,next){
   }catch(e){ console.warn("vote send failed",e); }
 }
 
+/* ---------- notes ---------- */
+const CID="manhwa_client";
+function clientId(){ let v=localStorage.getItem(CID); if(!v){ v=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():(String(Date.now())+Math.random().toString(16).slice(2)); localStorage.setItem(CID,v); } return v; }
+function overlayOpen(){ return document.getElementById("overlay").classList.contains("open"); }
+function noteDate(s){ try{ return new Date(s).toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}); }catch(e){ return ""; } }
+async function loadNotes(){
+  try{
+    const r=await fetch(`${SUPABASE_URL}/rest/v1/notes?select=id,title_id,nickname,body,client_id,created_at&order=created_at.desc`,
+      {headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${SUPABASE_ANON_KEY}`}});
+    const rows=await r.json(); notesByTitle={};
+    if(Array.isArray(rows)) rows.forEach(n=>{ (notesByTitle[n.title_id]=notesByTitle[n.title_id]||[]).push(n); });
+  }catch(e){ console.warn("notes load failed",e); }
+}
+async function noteRpc(fn,payload){
+  const r=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:"POST",
+    headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${SUPABASE_ANON_KEY}`,"Content-Type":"application/json"},
+    body:JSON.stringify(payload)});
+  const t=await r.text();
+  if(!r.ok){ let msg=""; try{ msg=JSON.parse(t).message||""; }catch(e){} throw new Error(msg||("HTTP "+r.status)); }
+  return t?JSON.parse(t):null;
+}
+async function addNote(x,nickname,body){ await noteRpc("add_note",{p_title_id:x.id,p_nickname:nickname||null,p_body:body,p_client_id:clientId()}); await loadNotes(); if(overlayOpen()) openModal(x); }
+async function editNote(x,id,body){ await noteRpc("edit_note",{p_id:id,p_client_id:clientId(),p_body:body}); await loadNotes(); if(overlayOpen()) openModal(x); }
+async function deleteNote(x,id){ await noteRpc("delete_note",{p_id:id,p_client_id:clientId()}); await loadNotes(); if(overlayOpen()) openModal(x); }
+function notesHTML(x){
+  const mine=clientId(); const list=notesByTitle[x.id]||[];
+  const items=list.map(n=>{
+    const own=n.client_id===mine;
+    const acts=own?` · <span class="nact"><button data-act="edit">Edit</button><button data-act="del">Erase</button></span>`:"";
+    return `<div class="note" data-id="${n.id}"><div class="nmeta"><span class="nname">${esc(n.nickname||"Anonymous")}</span><span class="nright">${noteDate(n.created_at)}${acts}</span></div><div class="nbody">${esc(n.body)}</div></div>`;
+  }).join("");
+  const voted=!!myVote(x.id);
+  const composer=voted
+    ? `<div class="ncompose"><input class="nnick" maxlength="24" placeholder="Nickname (optional)"><textarea class="ntext" maxlength="280" placeholder="Add a note about this title…"></textarea><div class="nrow"><span class="cnt"><span class="nleft">280</span> left</span><button class="npost">Post note</button></div></div>`
+    : `<div class="nlock">Vote 👍 or 👎 above to leave a note.</div>`;
+  return `<div class="notes"><h4>Notes${list.length?` (${list.length})`:""}</h4>${items||`<div class="nempty">No notes yet.</div>`}${composer}</div>`;
+}
+function wireNotes(x,m){
+  const post=m.querySelector(".npost");
+  if(post){
+    const ta=m.querySelector(".ntext"), nick=m.querySelector(".nnick"), left=m.querySelector(".nleft");
+    if(ta&&left){ const upd=()=>left.textContent=280-ta.value.length; ta.oninput=upd; upd(); }
+    post.onclick=async()=>{ const body=(ta.value||"").trim(); if(!body) return; post.disabled=true; post.textContent="Posting…";
+      try{ await addNote(x,(nick.value||"").trim(),body); }catch(e){ post.disabled=false; post.textContent="Post note"; alert("Could not post: "+e.message); } };
+  }
+  m.querySelectorAll(".note").forEach(el=>{
+    const id=+el.dataset.id;
+    const eb=el.querySelector('[data-act="edit"]'), db=el.querySelector('[data-act="del"]');
+    if(eb) eb.onclick=async()=>{ const cur=el.querySelector(".nbody").textContent; const nv=prompt("Edit your note:",cur); if(nv==null) return; const body=nv.trim(); if(!body) return; try{ await editNote(x,id,body); }catch(e){ alert("Could not edit: "+e.message); } };
+    if(db) db.onclick=async()=>{ if(!confirm("Erase this note?")) return; try{ await deleteNote(x,id); }catch(e){ alert("Could not erase: "+e.message); } };
+  });
+}
+
+
 /* ---------- modal ---------- */
 function openGlossary(){
   const G=[...new Set(DATA.flatMap(x=>x.genres))].sort();
@@ -635,9 +709,11 @@ function openModal(x){
       ${x.read_url?`<a class="read" href="${x.read_url}" target="_blank" rel="noopener">Read it here →</a>`:""}
       <span class="vote up ${my==="up"?"on":""}" data-d="up"><span>👍</span><span>${c.up||0}</span></span>
       <span class="vote down ${my==="down"?"on":""}" data-d="down"><span>👎</span><span>${c.down||0}</span></span>
-    </div>`;
+    </div>
+    ${notesHTML(x)}`;
   wireCover(m.querySelector(".m-top img"), x);
   m.querySelectorAll(".vote").forEach(b=>b.onclick=()=>castVote(x,b.dataset.d));
+  wireNotes(x,m);
   document.getElementById("overlay").classList.add("open");
 }
 function closeModal(){ document.getElementById("overlay").classList.remove("open"); }
