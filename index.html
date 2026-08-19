@@ -124,14 +124,14 @@
   .note .nbody{font-size:13px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
   .note .nact button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;padding:0 0 0 8px}
   .note .nact button:hover{color:var(--accent)}
-  .ncompose{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+  .ncompose{display:flex;flex-direction:column;gap:6px;margin:6px 0 16px}
   .ncompose input,.ncompose textarea{background:var(--card2);border:1px solid var(--line2);border-radius:8px;color:var(--text);padding:8px 10px;font:inherit;font-size:13px;width:100%;box-sizing:border-box}
   .ncompose textarea{resize:vertical;min-height:54px}
   .ncompose .nrow{display:flex;justify-content:space-between;align-items:center;gap:10px}
   .ncompose .cnt{font-size:11px;color:var(--muted)}
   .npost{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 15px;cursor:pointer;font:inherit;font-weight:600}
   .npost:disabled{opacity:.6;cursor:default}
-  .nlock{font-size:12px;color:var(--muted);background:var(--card2);border:1px dashed var(--line2);border-radius:8px;padding:9px 11px;text-align:center;margin-top:8px}
+  .nlock{font-size:12px;color:var(--muted);background:var(--card2);border:1px dashed var(--line2);border-radius:8px;padding:9px 11px;text-align:center;margin:6px 0 16px}
   .nempty{font-size:12px;color:var(--muted);margin-bottom:8px}
 </style>
 </head>
@@ -649,7 +649,7 @@ function notesHTML(x){
   const composer=voted
     ? `<div class="ncompose"><input class="nnick" maxlength="24" placeholder="Nickname (optional)"><textarea class="ntext" maxlength="280" placeholder="Add a note about this title…"></textarea><div class="nrow"><span class="cnt"><span class="nleft">280</span> left</span><button class="npost">Post note</button></div></div>`
     : `<div class="nlock">Vote 👍 or 👎 above to leave a note.</div>`;
-  return `<div class="notes"><h4>Notes${list.length?` (${list.length})`:""}</h4>${items||`<div class="nempty">No notes yet.</div>`}${composer}</div>`;
+  return `<div class="notes"><h4>Notes${list.length?` (${list.length})`:""}</h4>${composer}${items||`<div class="nempty">No notes yet.</div>`}</div>`;
 }
 function wireNotes(x,m){
   const post=m.querySelector(".npost");

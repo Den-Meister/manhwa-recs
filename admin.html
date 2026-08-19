@@ -8,10 +8,10 @@
   :root{--bg:#0d0d15;--card:#15151f;--card2:#1b1430;--line2:#33334a;--text:#e9e9f0;--muted:#8b8ba3;--muted2:#a9a9c2;--accent:#7c5cff;--down:#e3767a;--down-bg:#2a1a1c;--down-line:#522d30;}
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:24px}
-  .wrap{max-width:760px;margin:0 auto}
+  .wrap{max-width:1280px;margin:0 auto}
   h1{font-size:20px;margin:0 0 4px}
   .sub{color:var(--muted);font-size:13px;margin:0 0 20px}
-  .box{background:var(--card);border:1px solid var(--line2);border-radius:12px;padding:16px}
+  #login{max-width:420px;background:var(--card);border:1px solid var(--line2);border-radius:12px;padding:16px}
   label{display:block;font-size:12px;color:var(--muted);margin:8px 0 4px}
   input{width:100%;background:var(--card2);border:1px solid var(--line2);border-radius:8px;color:var(--text);padding:9px 11px;font:inherit;font-size:14px}
   button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:9px 15px;cursor:pointer;font:inherit;font-weight:600}
@@ -19,17 +19,21 @@
   button.danger{background:var(--down-bg);border:1px solid var(--down-line);color:var(--down);font-weight:500}
   button:disabled{opacity:.6;cursor:default}
   .err{color:var(--down);font-size:13px;margin-top:8px;min-height:16px}
-  .bar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
   .bar .who{color:var(--muted);font-size:13px;margin-right:auto}
-  .note{background:var(--card);border:1px solid var(--line2);border-radius:11px;padding:12px 14px;margin-bottom:10px}
-  .note .top{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--muted);margin-bottom:6px;flex-wrap:wrap}
-  .note .ttl{color:var(--accent);font-weight:600}
-  .note .who{color:var(--muted2);font-weight:600}
-  .note .body{font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-word;margin-bottom:10px}
-  .note textarea{width:100%;background:var(--card2);border:1px solid var(--line2);border-radius:8px;color:var(--text);padding:9px 11px;font:inherit;font-size:14px;resize:vertical;min-height:56px;margin-bottom:8px}
+  #list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;align-items:start}
+  .note{background:var(--card);border:1px solid var(--line2);border-radius:11px;padding:12px 13px;display:flex;flex-direction:column}
+  .nhead{display:flex;gap:10px;align-items:flex-start;margin-bottom:9px}
+  .cov{width:46px;height:64px;object-fit:cover;border-radius:6px;flex:none;background:var(--card2);border:1px solid var(--line2)}
+  .hmeta{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .ttl{color:var(--accent);font-weight:600;font-size:14px;line-height:1.25}
+  .who2{color:var(--muted2);font-size:12px}
+  .date{color:var(--muted);font-size:11px}
+  .body{font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-word;margin-bottom:10px;flex:1}
+  .note textarea{width:100%;background:var(--card2);border:1px solid var(--line2);border-radius:8px;color:var(--text);padding:9px 11px;font:inherit;font-size:14px;resize:vertical;min-height:70px;margin-bottom:8px}
   .acts{display:flex;gap:8px}
+  .acts button{padding:6px 12px;font-size:13px}
   .muted{color:var(--muted);font-size:13px}
-  a{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -37,7 +41,7 @@
   <h1>Notes admin</h1>
   <p class="sub">Private moderation page. Log in with your Supabase account to edit or erase any note.</p>
 
-  <div id="login" class="box">
+  <div id="login">
     <label>Email</label>
     <input id="email" type="email" autocomplete="username" placeholder="you@example.com">
     <label>Password</label>
@@ -68,8 +72,8 @@ const $ = id => document.getElementById(id);
 const esc = s => (s??"").toString().replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const slug = s => (s||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 
-/* ---- title map (slug -> real title) from the published sheet ---- */
-let TITLES = {};
+/* ---- title + cover map (slug -> {title, cover}) from the published sheet ---- */
+let TITLES = {}, COVERS = {};
 function parseCSV(text){
   const rows=[]; let row=[], cur="", q=false;
   for(let i=0;i<text.length;i++){ const c=text[i];
@@ -83,11 +87,15 @@ async function loadTitles(){
   try{
     const rows=parseCSV(await (await fetch(SHEET_CSV_URL)).text());
     const head=rows.shift().map(h=>h.trim().toLowerCase());
-    const ti=head.indexOf("title");
-    rows.forEach(c=>{ const t=(c[ti]||"").trim(); if(t && t!=="__PEOPLE_COUNT__") TITLES[slug(t)]=t; });
+    const ti=head.indexOf("title"), ci=head.indexOf("cover");
+    rows.forEach(c=>{ const t=(c[ti]||"").trim(); if(t && t!=="__PEOPLE_COUNT__"){ const s=slug(t); TITLES[s]=t; COVERS[s]=(c[ci]||"").trim(); } });
   }catch(e){ console.warn("title map failed",e); }
 }
 const titleOf = id => TITLES[id] || id;
+function coverOf(id){
+  const v=COVERS[id]; if(!v) return "";
+  return /^https?:/i.test(v) ? v : encodeURI("Manhwa Covers/"+v);
+}
 const when = s => { try{ return new Date(s).toLocaleString(); }catch(e){ return ""; } };
 
 /* ---- auth ---- */
@@ -97,7 +105,7 @@ async function refreshUI(){
     $("login").style.display="none";
     $("panel").style.display="block";
     $("who").textContent = "Signed in as " + (session.user.email||"admin");
-    await loadTitles();
+    if(!Object.keys(TITLES).length) await loadTitles();
     await loadNotes();
   } else {
     $("login").style.display="block";
@@ -120,12 +128,21 @@ async function loadNotes(){
   const { data, error } = await sb.from("notes").select("*").order("created_at",{ascending:false});
   if(error){ list.innerHTML='<p class="err">'+esc(error.message)+'</p>'; return; }
   if(!data.length){ list.innerHTML='<p class="muted">No notes yet.</p>'; return; }
-  list.innerHTML = data.map(n => `
-    <div class="note" data-id="${n.id}">
-      <div class="top"><span class="ttl">${esc(titleOf(n.title_id))}</span><span>${esc(n.nickname||"Anonymous")} · ${esc(when(n.created_at))}</span></div>
+  list.innerHTML = data.map(n => {
+    const cov=coverOf(n.title_id);
+    return `<div class="note" data-id="${n.id}">
+      <div class="nhead">
+        <img class="cov" ${cov?`src="${cov}"`:""} alt="" onerror="this.style.visibility='hidden'">
+        <div class="hmeta">
+          <span class="ttl">${esc(titleOf(n.title_id))}</span>
+          <span class="who2">${esc(n.nickname||"Anonymous")}</span>
+          <span class="date">${esc(when(n.created_at))}</span>
+        </div>
+      </div>
       <div class="body">${esc(n.body)}</div>
       <div class="acts"><button class="ghost" data-a="edit">Edit</button><button class="danger" data-a="del">Erase</button></div>
-    </div>`).join("");
+    </div>`;
+  }).join("");
   list.querySelectorAll(".note").forEach(el=>{
     const id=+el.dataset.id;
     el.querySelector('[data-a="edit"]').onclick = () => startEdit(el, id);
