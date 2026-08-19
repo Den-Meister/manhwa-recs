@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notes Admin · Manhwa Recs</title>
+<style>
+  :root{--bg:#0d0d15;--card:#15151f;--card2:#1b1430;--line2:#33334a;--text:#e9e9f0;--muted:#8b8ba3;--muted2:#a9a9c2;--accent:#7c5cff;--down:#e3767a;--down-bg:#2a1a1c;--down-line:#522d30;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:24px}
+  .wrap{max-width:760px;margin:0 auto}
+  h1{font-size:20px;margin:0 0 4px}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 20px}
+  .box{background:var(--card);border:1px solid var(--line2);border-radius:12px;padding:16px}
+  label{display:block;font-size:12px;color:var(--muted);margin:8px 0 4px}
+  input{width:100%;background:var(--card2);border:1px solid var(--line2);border-radius:8px;color:var(--text);padding:9px 11px;font:inherit;font-size:14px}
+  button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:9px 15px;cursor:pointer;font:inherit;font-weight:600}
+  button.ghost{background:transparent;border:1px solid var(--line2);color:var(--muted2);font-weight:500}
+  button.danger{background:var(--down-bg);border:1px solid var(--down-line);color:var(--down);font-weight:500}
+  button:disabled{opacity:.6;cursor:default}
+  .err{color:var(--down);font-size:13px;margin-top:8px;min-height:16px}
+  .bar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .bar .who{color:var(--muted);font-size:13px;margin-right:auto}
+  .note{background:var(--card);border:1px solid var(--line2);border-radius:11px;padding:12px 14px;margin-bottom:10px}
+  .note .top{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--muted);margin-bottom:6px;flex-wrap:wrap}
+  .note .ttl{color:var(--accent);font-weight:600}
+  .note .who{color:var(--muted2);font-weight:600}
+  .note .body{font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-word;margin-bottom:10px}
+  .note textarea{width:100%;background:var(--card2);border:1px solid var(--line2);border-radius:8px;color:var(--text);padding:9px 11px;font:inherit;font-size:14px;resize:vertical;min-height:56px;margin-bottom:8px}
+  .acts{display:flex;gap:8px}
+  .muted{color:var(--muted);font-size:13px}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Notes admin</h1>
+  <p class="sub">Private moderation page. Log in with your Supabase account to edit or erase any note.</p>
+
+  <div id="login" class="box">
+    <label>Email</label>
+    <input id="email" type="email" autocomplete="username" placeholder="you@example.com">
+    <label>Password</label>
+    <input id="pass" type="password" autocomplete="current-password" placeholder="••••••••">
+    <div style="margin-top:12px"><button id="loginBtn">Log in</button></div>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div id="panel" style="display:none">
+    <div class="bar">
+      <span class="who" id="who"></span>
+      <button class="ghost" id="refresh">Refresh</button>
+      <button class="ghost" id="logout">Log out</button>
+    </div>
+    <div id="list"></div>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+const SUPABASE_URL  = "https://oqancpagqwhxbiufvcin.supabase.co";
+const SUPABASE_KEY  = "sb_publishable_dbo9phCX6jW3rNrvtrwEVQ_JFWPU-HQ";
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_7kdr9oFva5-sHT_0FU2jCYlZBmPWM4QtYC-bJwSqr5Vh_Xk35L6tfM1cGW6knuGpnW6ZvZk8CWYD/pub?output=csv";
+
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+const $ = id => document.getElementById(id);
+const esc = s => (s??"").toString().replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const slug = s => (s||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+
+/* ---- title map (slug -> real title) from the published sheet ---- */
+let TITLES = {};
+function parseCSV(text){
+  const rows=[]; let row=[], cur="", q=false;
+  for(let i=0;i<text.length;i++){ const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=c; }
+    else { if(c==='"') q=true; else if(c===',') {row.push(cur);cur="";} else if(c==='\n'){row.push(cur);rows.push(row);row=[];cur="";} else if(c!=='\r') cur+=c; }
+  }
+  if(cur.length||row.length){ row.push(cur); rows.push(row); }
+  return rows;
+}
+async function loadTitles(){
+  try{
+    const rows=parseCSV(await (await fetch(SHEET_CSV_URL)).text());
+    const head=rows.shift().map(h=>h.trim().toLowerCase());
+    const ti=head.indexOf("title");
+    rows.forEach(c=>{ const t=(c[ti]||"").trim(); if(t && t!=="__PEOPLE_COUNT__") TITLES[slug(t)]=t; });
+  }catch(e){ console.warn("title map failed",e); }
+}
+const titleOf = id => TITLES[id] || id;
+const when = s => { try{ return new Date(s).toLocaleString(); }catch(e){ return ""; } };
+
+/* ---- auth ---- */
+async function refreshUI(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if(session){
+    $("login").style.display="none";
+    $("panel").style.display="block";
+    $("who").textContent = "Signed in as " + (session.user.email||"admin");
+    await loadTitles();
+    await loadNotes();
+  } else {
+    $("login").style.display="block";
+    $("panel").style.display="none";
+  }
+}
+$("loginBtn").onclick = async () => {
+  $("err").textContent=""; const b=$("loginBtn"); b.disabled=true; b.textContent="Logging in…";
+  const { error } = await sb.auth.signInWithPassword({ email:$("email").value.trim(), password:$("pass").value });
+  b.disabled=false; b.textContent="Log in";
+  if(error){ $("err").textContent = error.message; return; }
+  await refreshUI();
+};
+$("logout").onclick = async () => { await sb.auth.signOut(); await refreshUI(); };
+$("refresh").onclick = () => loadNotes();
+
+/* ---- notes ---- */
+async function loadNotes(){
+  const list=$("list"); list.innerHTML='<p class="muted">Loading…</p>';
+  const { data, error } = await sb.from("notes").select("*").order("created_at",{ascending:false});
+  if(error){ list.innerHTML='<p class="err">'+esc(error.message)+'</p>'; return; }
+  if(!data.length){ list.innerHTML='<p class="muted">No notes yet.</p>'; return; }
+  list.innerHTML = data.map(n => `
+    <div class="note" data-id="${n.id}">
+      <div class="top"><span class="ttl">${esc(titleOf(n.title_id))}</span><span>${esc(n.nickname||"Anonymous")} · ${esc(when(n.created_at))}</span></div>
+      <div class="body">${esc(n.body)}</div>
+      <div class="acts"><button class="ghost" data-a="edit">Edit</button><button class="danger" data-a="del">Erase</button></div>
+    </div>`).join("");
+  list.querySelectorAll(".note").forEach(el=>{
+    const id=+el.dataset.id;
+    el.querySelector('[data-a="edit"]').onclick = () => startEdit(el, id);
+    el.querySelector('[data-a="del"]').onclick  = () => erase(id);
+  });
+}
+function startEdit(el, id){
+  const bodyDiv=el.querySelector(".body"); const cur=bodyDiv.textContent;
+  const acts=el.querySelector(".acts");
+  bodyDiv.innerHTML = `<textarea>${esc(cur)}</textarea>`;
+  acts.innerHTML = `<button data-a="save">Save</button><button class="ghost" data-a="cancel">Cancel</button>`;
+  acts.querySelector('[data-a="save"]').onclick = async () => {
+    const body=el.querySelector("textarea").value.trim(); if(!body) return;
+    const { error } = await sb.from("notes").update({ body }).eq("id", id);
+    if(error){ alert("Could not save: "+error.message); return; }
+    loadNotes();
+  };
+  acts.querySelector('[data-a="cancel"]').onclick = () => loadNotes();
+}
+async function erase(id){
+  if(!confirm("Erase this note permanently?")) return;
+  const { error } = await sb.from("notes").delete().eq("id", id);
+  if(error){ alert("Could not erase: "+error.message); return; }
+  loadNotes();
+}
+
+refreshUI();
+</script>
+</body>
+</html>
